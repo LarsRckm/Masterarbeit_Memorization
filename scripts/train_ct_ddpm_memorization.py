@@ -32,9 +32,9 @@ try:
 except Exception:  # pragma: no cover
     tqdm = None
 
-from ..dataset_ct_polar import BatteryCTPerCellDataset, BatteryCTSelectedSamplesDataset
-from ..diffusion_polar import Diffusion
-from ..modules_polar_ct import UNet_conditional_polar
+from .dataset_ct_polar import BatteryCTPerCellDataset, BatteryCTSelectedSamplesDataset
+from .diffusion_polar import Diffusion
+from .modules_polar_ct import UNet_conditional_polar
 
 
 class EMA:
