@@ -15,23 +15,31 @@ training script that works with the one-format subset.
 
 ## Prerequisites (generate index + geometry)
 
-If you don't have these yet:
+This debug setup keeps its own dataset root.
+
+1) Set the dataset path in `model_debug_memorization/config.py`:
+
+```py
+BASE_PATH = "D:/.../cylindrical"
+```
+
+2) Build index + geometry (written into `model_debug_memorization/data/`):
 
 ```powershell
-python -m model.CT_scan_model.scripts.build_cell_index \
-  --out model/CT_scan_model/cell_index.json
+python -m model_debug_memorization.scripts.build_cell_index_memorization \
+  --out model_debug_memorization/data/cell_index.json
 
 python -m model.CT_scan_model.scripts.precompute_geometry \
-  --index model/CT_scan_model/cell_index.json \
-  --out   model/CT_scan_model/cell_geometry.json
+  --index model_debug_memorization/data/cell_index.json \
+  --out   model_debug_memorization/data/cell_geometry.json
 ```
 
 ## 1) Build memorization subset
 
 ```powershell
 python -m model_debug_memorization.scripts.build_memorization_subset \
-  --index    model/CT_scan_model/cell_index.json \
-  --geometry model/CT_scan_model/cell_geometry.json \
+  --index    model_debug_memorization/data/cell_index.json \
+  --geometry model_debug_memorization/data/cell_geometry.json \
   --outdir   model_debug_memorization/data \
   --cell-format 18650 \
   --manufacturer EVE \
