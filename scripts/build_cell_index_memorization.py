@@ -11,7 +11,7 @@ import os
 from typing import Optional
 
 import config as debug_config
-from build_cell_index_local import build_index
+from .build_cell_index_local import build_index
 
 
 def main(argv: Optional[list[str]] = None) -> int:
