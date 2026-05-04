@@ -19,8 +19,8 @@ import os
 from dataclasses import dataclass
 from typing import Dict, List, Optional
 
-from .. import battery_metadata
-from .. import config
+import battery_metadata
+import config
 
 
 @dataclass(frozen=True)
