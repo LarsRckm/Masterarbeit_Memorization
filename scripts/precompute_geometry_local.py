@@ -18,7 +18,7 @@ try:
 except Exception:  # pragma: no cover
     cv2 = None
 
-from .. import battery_metadata
+import battery_metadata
 
 
 def _load_gray(path: str) -> np.ndarray:
