@@ -29,7 +29,7 @@ BASE_PATH = "D:/.../cylindrical"
 python -m model_debug_memorization.scripts.build_cell_index_memorization \
   --out model_debug_memorization/data/cell_index.json
 
-python -m model.CT_scan_model.scripts.precompute_geometry \
+python -m model_debug_memorization.scripts.precompute_geometry_memorization \
   --index model_debug_memorization/data/cell_index.json \
   --out   model_debug_memorization/data/cell_geometry.json
 ```
