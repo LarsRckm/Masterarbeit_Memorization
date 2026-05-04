@@ -13,7 +13,7 @@ Only lightweight constants live here (no torch imports).
 # Dataset root containing the CT folder structure.
 # Example (Windows):
 #   BASE_PATH = "D:/Data/Battery_CT_Scans/cylindrical"
-BASE_PATH = ""
+BASE_PATH = "/data/Data/projects/GLIMPSE/cylindrical"
 
 # -----------------------------------------------------------------------------
 # Polar representation (model input)
