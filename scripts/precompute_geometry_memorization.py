@@ -1,10 +1,6 @@
 """Precompute per-cell geometry for memorization debug runs.
 
-This is a thin wrapper around `model.CT_scan_model.scripts.precompute_geometry`.
-It exists so the entire memorization pipeline can be run using
-`model_debug_memorization.*` entrypoints.
-
-The dataset path is taken from the provided index JSON's `base_path`.
+This script is self-contained and does not import from the main `model/` package.
 """
 
 from __future__ import annotations
@@ -13,7 +9,7 @@ import argparse
 import os
 from typing import Optional
 
-from model.CT_scan_model.scripts import precompute_geometry as _pre
+from . import precompute_geometry_local as _pre
 
 
 def main(argv: Optional[list[str]] = None) -> int:

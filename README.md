@@ -9,9 +9,9 @@ Goal: train on **5 distinct cells** but with **constant conditioning**:
 
 Validation and test use the **same cells** (`val_cells = test_cells = train_cells`).
 
-This does **not** change the model, loss, or sampling code in `model/CT_scan_model/`.
-It only creates a tiny subset of the training data and provides a separate
-training script that works with the one-format subset.
+This package is **self-contained** (no imports from the main `model/` package).
+It creates a tiny subset of the training data and provides a dedicated training
+script that works with the one-format subset.
 
 ## Prerequisites (generate index + geometry)
 

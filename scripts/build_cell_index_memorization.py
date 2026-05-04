@@ -1,10 +1,6 @@
 """Build a CT cell_index.json using the memorization debug config.
 
-This is a tiny wrapper around the existing CT_scan_model index builder, but it
-defaults to `model_debug_memorization.config.BASE_PATH` instead of
-`model.config.BASE_PATH`.
-
-Use this if you don't want to touch the main project config.
+This script is self-contained and does not import from the main `model/` package.
 """
 
 from __future__ import annotations
@@ -14,9 +10,8 @@ import json
 import os
 from typing import Optional
 
-from model.CT_scan_model.scripts.build_cell_index import build_index
-
 from .. import config as debug_config
+from .build_cell_index_local import build_index
 
 
 def main(argv: Optional[list[str]] = None) -> int:

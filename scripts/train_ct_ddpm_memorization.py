@@ -1,12 +1,9 @@
 """Training script for a small memorization subset.
 
-This is a minimal fork of `model.CT_scan_model.scripts.train_ct_ddpm` that:
+Self-contained (does not import from the main `model/` package).
 
-- reuses the same UNet + diffusion + datasets unchanged
-- selects validation/test samples based on the provided `splits.json` cell IDs
-  (instead of requiring the 3 hardcoded formats 18650/2170/4680)
-
-It is intended for overfit debugging on tiny subsets.
+It trains the same architecture and diffusion process as the original pipeline,
+but is intended for overfit debugging on tiny subsets.
 """
 
 from __future__ import annotations
@@ -35,9 +32,9 @@ try:
 except Exception:  # pragma: no cover
     tqdm = None
 
-from model.CT_scan_model.dataset_ct_polar import BatteryCTPerCellDataset, BatteryCTSelectedSamplesDataset
-from model.CT_scan_model.diffusion_polar import Diffusion
-from model.CT_scan_model.modules_polar_ct import UNet_conditional_polar
+from ..dataset_ct_polar import BatteryCTPerCellDataset, BatteryCTSelectedSamplesDataset
+from ..diffusion_polar import Diffusion
+from ..modules_polar_ct import UNet_conditional_polar
 
 
 class EMA:

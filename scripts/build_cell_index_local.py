@@ -1,0 +1,129 @@
+"""Build a deterministic cell/image index for memorization tests.
+
+Copied from `model/CT_scan_model/scripts/build_cell_index.py` to avoid imports
+from the `model/` package.
+
+Scans a dataset folder structure containing one or more directories named
+"slices" at arbitrary depth, e.g.:
+
+  BASE_PATH/.../<cell_format>/.../slices/<cell_id>/radial_images/*.png
+
+Only images in radial_images/ are used.
+"""
+
+from __future__ import annotations
+
+import argparse
+import json
+import os
+from dataclasses import dataclass
+from typing import Dict, List, Optional
+
+from .. import battery_metadata
+from .. import config
+
+
+@dataclass(frozen=True)
+class ImageEntry:
+    image_relpath: str
+    abs_depth: float
+    rel_depth: float
+
+
+def _safe_listdir(path: str) -> List[str]:
+    try:
+        return os.listdir(path)
+    except OSError:
+        return []
+
+
+def build_index(base_path: str, min_rel_depth: float = 0.1, max_rel_depth: float = 0.9) -> Dict[str, dict]:
+    if not os.path.exists(base_path):
+        raise FileNotFoundError(f"BASE_PATH not found: '{base_path}'. Set model_debug_memorization/config.py::BASE_PATH")
+
+    cells: Dict[str, dict] = {}
+    valid_formats = ("18650", "2170", "4680")
+
+    for root, dirs, _files in os.walk(base_path):
+        if "slices" not in dirs:
+            continue
+
+        slices_dir = os.path.join(root, "slices")
+        rel_slices = os.path.relpath(slices_dir, base_path).replace("\\", "/")
+        parts = [p for p in rel_slices.split("/") if p]
+
+        fmt_token = next((p for p in parts if p in valid_formats), None)
+        if fmt_token is None:
+            continue
+        cell_format = battery_metadata.extract_cell_format(fmt_token)
+
+        max_height = battery_metadata.get_max_height_from_format(cell_format)
+        if max_height is None or max_height == 0:
+            continue
+
+        for cell_dir in sorted(_safe_listdir(slices_dir)):
+            cell_path = os.path.join(slices_dir, cell_dir)
+            if not os.path.isdir(cell_path):
+                continue
+
+            radial_dir = os.path.join(cell_path, "radial_images")
+            if not os.path.isdir(radial_dir):
+                continue
+
+            cell_id = os.path.relpath(cell_path, base_path).replace("\\", "/")
+
+            entries: List[ImageEntry] = []
+            for fn in sorted(_safe_listdir(radial_dir)):
+                if not fn.lower().endswith(".png"):
+                    continue
+                abs_depth = float(battery_metadata.extract_absolute_depth(fn))
+                rel_depth = abs_depth / float(max_height)
+                if not (min_rel_depth <= rel_depth <= max_rel_depth):
+                    continue
+
+                image_relpath = os.path.join(cell_id, "radial_images", fn).replace("\\", "/")
+                entries.append(ImageEntry(image_relpath=image_relpath, abs_depth=abs_depth, rel_depth=rel_depth))
+
+            if not entries:
+                continue
+
+            cells[cell_id] = {
+                "cell_format": cell_format,
+                "images": [
+                    {"relpath": e.image_relpath, "abs_depth": e.abs_depth, "rel_depth": e.rel_depth} for e in entries
+                ],
+            }
+
+    return {
+        "base_path": base_path.replace("\\", "/"),
+        "min_rel_depth": float(min_rel_depth),
+        "max_rel_depth": float(max_rel_depth),
+        "cells": cells,
+    }
+
+
+def main(argv: Optional[List[str]] = None) -> int:
+    p = argparse.ArgumentParser(description="Build CT cell index (10-90% slices) for memorization tests")
+    p.add_argument("--base-path", default=config.BASE_PATH, help="Dataset BASE_PATH")
+    p.add_argument("--min-rel-depth", type=float, default=0.1)
+    p.add_argument("--max-rel-depth", type=float, default=0.9)
+    p.add_argument(
+        "--out",
+        default=os.path.join("model_debug_memorization", "data", "cell_index.json"),
+        help="Output JSON path",
+    )
+    args = p.parse_args(argv)
+
+    index = build_index(args.base_path, min_rel_depth=args.min_rel_depth, max_rel_depth=args.max_rel_depth)
+    os.makedirs(os.path.dirname(args.out), exist_ok=True)
+    with open(args.out, "w", encoding="utf-8") as f:
+        json.dump(index, f, indent=2)
+
+    n_cells = len(index["cells"])
+    n_images = sum(len(v["images"]) for v in index["cells"].values())
+    print(f"Wrote index: {args.out}  (cells={n_cells}, images={n_images})")
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
