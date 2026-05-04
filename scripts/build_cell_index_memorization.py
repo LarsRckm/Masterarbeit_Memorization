@@ -10,8 +10,8 @@ import json
 import os
 from typing import Optional
 
-from .. import config as debug_config
-from .build_cell_index_local import build_index
+import config as debug_config
+from build_cell_index_local import build_index
 
 
 def main(argv: Optional[list[str]] = None) -> int:
